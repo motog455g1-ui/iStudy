@@ -76,6 +76,18 @@ export const TimerTool: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [selectedHours, setSelectedHours] = useState(0);
   const [selectedMinutes, setSelectedMinutes] = useState(25);
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    audioRef.current = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
+    audioRef.current.loop = true;
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const minutes = Array.from({ length: 60 }, (_, i) => i);
 
@@ -87,7 +99,9 @@ export const TimerTool: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       }, 1000);
     } else if (timeLeft === 0 && isStarted) {
       setIsRunning(false);
-      // Play sound here ideally
+      if (audioRef.current) {
+        audioRef.current.play().catch(e => console.log('Audio play failed', e));
+      }
     }
     return () => clearInterval(interval);
   }, [isRunning, timeLeft, isStarted]);
@@ -100,12 +114,20 @@ export const TimerTool: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       setTimeLeft(totalSeconds);
       setIsStarted(true);
       setIsRunning(true);
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
     }
   };
 
   const cancelTimer = () => {
     setIsStarted(false);
     setIsRunning(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -169,7 +191,7 @@ export const TimerTool: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <button className="w-full max-w-sm bg-gradient-to-b from-[#f4f5f7] to-[#b8bbc3] rounded-lg border border-[#1a1a1a] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] flex justify-between items-center px-4 py-3 mb-6 active:from-[#b8bbc3] active:to-[#f4f5f7]">
               <span className="text-black font-bold text-lg">When Timer Ends</span>
               <div className="flex items-center text-[#555]">
-                <span className="text-lg mr-1">Sleep iPod</span>
+                <span className="text-lg mr-1">Digital Alarm</span>
                 <ChevronRight size={20} className="text-[#333]" strokeWidth={3} />
               </div>
             </button>
@@ -196,7 +218,7 @@ export const TimerTool: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <button className="w-full max-w-sm bg-gradient-to-b from-[#f4f5f7] to-[#b8bbc3] rounded-lg border border-[#1a1a1a] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] flex justify-between items-center px-4 py-3 mb-6 active:from-[#b8bbc3] active:to-[#f4f5f7]">
               <span className="text-black font-bold text-lg">When Timer Ends</span>
               <div className="flex items-center text-[#555]">
-                <span className="text-lg mr-1">Sleep iPod</span>
+                <span className="text-lg mr-1">Digital Alarm</span>
                 <ChevronRight size={20} className="text-[#333]" strokeWidth={3} />
               </div>
             </button>
